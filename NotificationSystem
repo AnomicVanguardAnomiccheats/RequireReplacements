@@ -1,0 +1,47 @@
+local events = game:GetService("ReplicatedStorage"):WaitForChild("_CS.Events")
+local notify = {}
+local TS = game:GetService("TweenService")
+
+local template = game:GetService("ReplicatedStorage"):WaitForChild("UserInterface").Card
+
+function notify:AddToStream(player, text, scripttype, SetParent)
+	warn(scripttype)
+	pcall(function()
+		local clone = template:Clone()
+		if SetParent == "MainMenu" then
+			clone.Parent = player.PlayerGui:WaitForChild("MainMenu").Messages
+		else
+			clone.Parent = player.PlayerGui:WaitForChild("MainUIHolder").Messages
+		end
+	clone.TextLabel.Text = text
+	clone.LocalScript.Disabled = false
+	if scripttype.ClassName == "Script" then
+		events.NotifSound:FireClient(player)
+	elseif scripttype.ClassName == "LocalScript" then
+		player.PlayerGui.Notify:Play()
+	end
+	end)
+end
+
+function notify:DisplayPublicMessage(Message)
+	for _, plr in pairs(game.Players:GetPlayers()) do
+		local Success, Err = pcall(function()
+			local Clone = script.PublicMessage:Clone()
+			game:GetService("Debris"):AddItem(Clone, 8)
+			Clone.MessageText.Text = Message
+			Clone.Parent = plr.PlayerGui.MainUIHolder.Menus
+
+			TS:Create(Clone, TweenInfo.new(0.5), {Position = UDim2.new(0.5,0,0.03,0)}):Play()
+			
+			delay(6, function()
+				TS:Create(Clone, TweenInfo.new(0.5), {Position = UDim2.new(0.5,0,-0.1,0)}):Play()
+			end)
+			
+		end)
+		
+		if Err then warn(Err) end
+	end
+end
+
+return notify
+
