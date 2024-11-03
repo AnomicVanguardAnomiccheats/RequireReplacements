@@ -1,0 +1,52 @@
+local thingy = {}
+
+local playersService = game:GetService("Players")
+local localplayer = playersService.LocalPlayer
+local Char = localplayer.Character or localplayer.CharacterAdded:Wait()
+
+localplayer.CharacterAdded:Connect(function(char)
+    Char = char
+end)
+
+function thingy:iforgoskull(hookedfunctions, RemoveGunSpreadToggle, HitscanGunsToggle, itemlist)
+    for i,v in pairs(hookedfunctions) do
+        local upvalues = debug.getupvalues(v)
+        local gun
+        for i,v in pairs(upvalues) do
+            if typeof(v) == "Instance" then
+                if v:IsA("Model") then
+                    gun = v
+                end
+            end
+        end
+        
+        if RemoveGunSpreadToggle == true then
+            
+            local index = (table.find(upvalues, itemlist[gun.Name]["Accuracy"]))
+            if index then
+                debug.setupvalue(v, index, 0)
+            end
+        end
+        if HitscanGunsToggle == true then
+            local index = (table.find(upvalues, 700))
+            if index then
+                debug.setupvalue(v, index, 10017)
+            end
+        end
+
+        if RemoveGunSpreadToggle == false then
+            local index = (table.find(upvalues, 0))
+            if index then
+                debug.setupvalue(v, index, itemlist[gun.Name]["Accuracy"])
+            end
+        end
+        if HitscanGunsToggle == false then
+            local index = (table.find(upvalues, 10017))
+            if index then
+                debug.setupvalue(v, index, 700)
+            end
+        end
+    end
+end
+
+return thingy
