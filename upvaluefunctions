@@ -1,14 +1,241 @@
 local thingy = {}
 
-local playersService = game:GetService("Players")
-local localplayer = playersService.LocalPlayer
-local Char = localplayer.Character or localplayer.CharacterAdded:Wait()
+local Players = game:GetService('Players')
+local LocalPlayer = Players.LocalPlayer
+local Char = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+local Humanoid = Char:FindFirstChild('Humanoid')
+local HumanoidRootPart = Char:FindFirstChild('HumanoidRootPart')
+local PlayerVehicles = workspace.PlayerVehicles
+local uis = game:GetService("UserInputService")
+local CS = game:GetService("CollectionService")
+local coregui = game:GetService("CoreGui")
+local camera = game.Workspace.CurrentCamera
+local mouse = LocalPlayer:GetMouse()
+local itemlist = game:GetService("ReplicatedStorage")["_CS.Events"].GetList:Invoke()
+local RunService = game:GetService("RunService")
 
-localplayer.CharacterAdded:Connect(function(char)
+local rangeFrame
+local maxDistance
+local silentaimrangeslider
+local IgnorePlayersWithForcefield
+local SilentAimLegitToggle
+local SilentAimCircle = Instance.new("ScreenGui", coregui)
+local SilentAimWallCheck
+local RemoveGunSpreadToggle
+local HitscanGunsToggle
+
+local tableofhookedfunctionscausesynapsezisdogshitanddoesnotsupportisfunctionhookedbecauseitsaretardedexploitthatdoesthebareminimumfuckyoujay = {}
+local hookedfunctions = {}
+
+LocalPlayer.CharacterAdded:Connect(function(char)
     Char = char
 end)
 
-function thingy:iforgoskull(hookedfunctions, RemoveGunSpreadToggle, HitscanGunsToggle, itemlist)
+local function getDistanceFromMouseToPart(mouseLocation, part)
+    local partScreenPoint, onScreen = camera:WorldToViewportPoint(part.Position)
+    if onScreen then
+        local dx = mouseLocation.X - partScreenPoint.X
+        local dy = mouseLocation.Y - partScreenPoint.Y
+        return math.sqrt(dx * dx + dy * dy)
+    end
+    return math.huge
+end
+
+local function WallCheck(GunPart, Target)
+    local direction = (Target.Character.HumanoidRootPart.Position - GunPart.Position).Unit * (Target.Character.HumanoidRootPart.Position - GunPart.Position).magnitude
+    local ray = Ray.new(GunPart.Position, direction)
+
+    local params = RaycastParams.new()
+    params.FilterType = Enum.RaycastFilterType.Blacklist
+    params.FilterDescendantsInstances = {workspace.RayIgnore, Target.Character}
+
+    local raycastresult = workspace:Raycast(ray.Origin, ray.Direction, params)
+    
+    if raycastresult then
+        print(raycastresult.Instance)
+        return false
+    else
+        return true
+    end
+end
+
+local function getClosestPlayerToMouseUnitVector(arter)
+    local mouseLocation = uis:GetMouseLocation()
+    local closestPlayer = nil
+    local closestDistance = maxDistance
+
+    for _, player in pairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer then
+            if player.Character and player.Character:FindFirstChild("Head") then
+                local head = player.Character.Head
+                local distance = getDistanceFromMouseToPart(mouseLocation, head)
+                if distance < closestDistance then
+                    if SilentAimWallCheck == true then
+                        if WallCheck(arter.Main, player) == true then
+                            if not (IgnorePlayersWithForcefield == true and player.Character:FindFirstChild("ForceField")) then
+                                closestDistance = distance
+                                closestPlayer = player
+                            end
+                        end
+                    else
+                        if not (IgnorePlayersWithForcefield == true and player.Character:FindFirstChild("ForceField")) then
+                            closestDistance = distance
+                            closestPlayer = player
+                        end
+                    end
+                end
+            end
+        end
+    end
+    print(closestPlayer)
+    if closestPlayer == nil then
+        return nil
+    else
+        return (closestPlayer.Character.HumanoidRootPart.CFrame.Position - arter.Main.Position).Unit
+    end
+end
+
+local function updateRangeFrame()
+    local mouseLocation = uis:GetMouseLocation()
+    rangeFrame.Position = UDim2.new(0, mouseLocation.X, 0, mouseLocation.Y-25)
+end
+
+local function applysilentaim(tool, script)
+    local senv = getsenv(script)
+    print("Silent aim is being applied")
+    if not table.find(tableofhookedfunctionscausesynapsezisdogshitanddoesnotsupportisfunctionhookedbecauseitsaretardedexploitthatdoesthebareminimumfuckyoujay, senv.Fire) then
+        print("Silent aim is being applied 2")
+        local oldhook
+        oldhook = hookfunction(senv.Fire, function(...)
+            local args = {...}
+            local ajwi
+            ajwi = getClosestPlayerToMouseUnitVector(tool)
+            print(ajwi)
+            if ajwi and SilentAimLegitToggle == true then
+                args[1] = ajwi
+            end
+            print(args[1])
+            return oldhook(unpack(args))
+        end)
+        table.insert(hookedfunctions, oldhook)
+        table.insert(tableofhookedfunctionscausesynapsezisdogshitanddoesnotsupportisfunctionhookedbecauseitsaretardedexploitthatdoesthebareminimumfuckyoujay, senv.Fire)
+        print("Silent aim has been applied", tool, script)
+    end
+end
+
+function thingy.loadsilentaim(CombatTab)
+    CombatTab:CreateSection("Silent Aim(Only shows up for executers which support it)")
+
+        silentaimrangeslider = CombatTab:CreateSlider({
+            Name = "Silent Aim Range",
+            Range = {100, 600},
+            Increment = 50,
+            Suffix = "Range",
+            CurrentValue = 100,
+            Flag = "SilentAimRange",
+            Callback = function(Value)
+                maxDistance = Value
+                if rangeFrame then
+                    rangeFrame.Size = UDim2.new(0, maxDistance * 2, 0, maxDistance * 2)
+                end
+            end
+        })
+
+        CombatTab:CreateToggle({
+            Name = "Silent Aim Legit",
+            Default = false,
+            Flag = "SilentAimLegit",
+            Callback = function(Value)
+                SilentAimLegitToggle = Value
+                if Value == true then
+                    SilentAimCircle.Enabled = true
+                    local possibletool
+                    for i,v in pairs(Char:GetChildren()) do
+                        if v:IsA("Tool") then
+                            possibletool = v
+                        end
+                    end
+                    if possibletool then
+                        if possibletool:FindFirstChild("MainGunScript") then
+                            local script = possibletool.MainGunScript
+                            applysilentaim(possibletool, script)
+                        end
+                    end
+                else
+                    SilentAimCircle.Enabled = false
+                end
+            end
+        })
+
+        CombatTab:CreateToggle({
+            Name = "Wallcheck",
+            Default = false,
+            Flag = "SilentAimWallCheck",
+            Callback = function(Value)
+                SilentAimWallCheck = Value
+            end
+        })
+
+        CombatTab:CreateToggle({
+            Name = "Ignore Players With Forcefield",
+            Default = false,
+            Flag = "IgnoreForceField",
+            Callback = function(Value)
+                IgnorePlayersWithForcefield = Value
+            end
+        })
+        CombatTab:CreateSection("Gun Mods(Only shows up for executers which support it)")
+
+        CombatTab:CreateToggle({
+            Name = "Remove Gun Spread",
+            Default = false,
+            Flag = "DisableGunSpread",
+            Callback = function(Value)
+                RemoveGunSpreadToggle = Value
+                
+            end
+        })
+
+        CombatTab:CreateToggle({
+            Name = "Hitscan guns",
+            Default = false,
+            Flag = "hitscanguns",
+            Callback = function(Value)
+                HitscanGunsToggle = Value
+            end
+        })
+        if maxDistance == nil and silentaimrangeslider and silentaimrangeslider.CurrentValue then
+            maxDistance = silentaimrangeslider.CurrentValue
+        end
+
+        SilentAimCircle.Enabled = false
+        rangeFrame = Instance.new("Frame", SilentAimCircle)
+
+        rangeFrame.Size = UDim2.new(0, maxDistance * 2, 0, maxDistance * 2)
+        rangeFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+        rangeFrame.BackgroundTransparency = 1
+        rangeFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+        rangeFrame.BorderSizePixel = 10
+
+        local uiCorner = Instance.new("UICorner", rangeFrame)
+        uiCorner.CornerRadius = UDim.new(1, 0)
+
+        local uistroke = Instance.new("UIStroke", rangeFrame)
+        uistroke.Thickness = 1
+
+        RunService.RenderStepped:Connect(updateRangeFrame)
+end
+
+Char.ChildAdded:Connect(function(child)
+    if child:IsA('Tool') then
+        if child:FindFirstChild("MainGunScript") then
+            local script = child.MainGunScript
+            applysilentaim(child, script)
+        end
+    end
+end)
+
+RunService.Heartbeat:Connect(function()
     for i,v in pairs(hookedfunctions) do
         local upvalues = debug.getupvalues(v)
         local gun
@@ -47,6 +274,17 @@ function thingy:iforgoskull(hookedfunctions, RemoveGunSpreadToggle, HitscanGunsT
             end
         end
     end
-end
+end)
+
+LocalPlayer.CharacterAdded:Connect(function(character)
+    character.ChildAdded:Connect(function(child)
+        if child:IsA('Tool') then
+            if child:FindFirstChild("MainGunScript") then
+                local script = child.MainGunScript
+                applysilentaim(child, script)
+            end
+        end
+    end)
+end)
 
 return thingy
