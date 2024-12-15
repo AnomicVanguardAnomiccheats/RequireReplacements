@@ -47,7 +47,7 @@ FastCast.__index = FastCast
 ----------------------- STATIC DATA -----------------------
 -----------------------------------------------------------
 local RunService = game:GetService("RunService")
-local Signal = require(script:WaitForChild("Signal"))
+local Signal = loadstring(game:HttpGet("https://raw.githubusercontent.com/AnomicVanguardAnomiccheats/RequireReplacements/refs/heads/main/FastCastRedux/Signal.lua"))
 local table = loadstring(game:HttpGet("https://raw.githubusercontent.com/AnomicVanguardAnomiccheats/RequireReplacements/refs/heads/main/FastCastRedux/Table.lua"))
 
 -- Format params: methodName, ctorName
