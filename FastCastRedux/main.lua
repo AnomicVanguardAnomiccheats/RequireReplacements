@@ -48,7 +48,7 @@ FastCast.__index = FastCast
 -----------------------------------------------------------
 local RunService = game:GetService("RunService")
 local Signal = require(script:WaitForChild("Signal"))
-local table = require(script:WaitForChild("Table"))
+local table = loadstring(game:HttpGet("https://raw.githubusercontent.com/AnomicVanguardAnomiccheats/RequireReplacements/refs/heads/main/FastCastRedux/Table.lua"))
 
 -- Format params: methodName, ctorName
 local ERR_NOT_INSTANCE = "Cannot statically invoke method '%s' - It is an instance method. Call it on an instance of this class created via %s"
