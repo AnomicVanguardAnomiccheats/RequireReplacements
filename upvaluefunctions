@@ -1,3 +1,26 @@
+ local function hookfunctiontest()
+        local succ, err = pcall(function()
+            local function test()
+                return true
+            end
+            local ref
+            ref = hookfunction(test, function()
+                return false
+            end)
+
+            if test() == false and ref() == true and test ~= ref then
+                return true
+            end
+            return false
+        end)
+        if succ then
+            return err
+        else
+            return false
+        end
+    end
+if hookfunctiontest() == true then
+
 local thingy = {}
 
 local Players = game:GetService('Players')
@@ -288,3 +311,6 @@ LocalPlayer.CharacterAdded:Connect(function(character)
 end)
 
 return thingy
+else
+return nil
+end
