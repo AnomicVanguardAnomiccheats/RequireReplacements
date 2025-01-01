@@ -47,8 +47,8 @@ FastCast.__index = FastCast
 ----------------------- STATIC DATA -----------------------
 -----------------------------------------------------------
 local RunService = game:GetService("RunService")
-local Signal = loadstring(game:HttpGet("https://raw.githubusercontent.com/AnomicVanguardAnomiccheats/RequireReplacements/refs/heads/main/FastCastRedux/Signal.lua"))
-local table = loadstring(game:HttpGet("https://raw.githubusercontent.com/AnomicVanguardAnomiccheats/RequireReplacements/refs/heads/main/FastCastRedux/Table.lua"))
+local Signal = loadstring(game:HttpGet("https://raw.githubusercontent.com/AnomicVanguardAnomiccheats/RequireReplacements/refs/heads/main/FastCastRedux/Signal.lua"))()
+local table = loadstring(game:HttpGet("https://raw.githubusercontent.com/AnomicVanguardAnomiccheats/RequireReplacements/refs/heads/main/FastCastRedux/Table.lua"))()
 
 -- Format params: methodName, ctorName
 local ERR_NOT_INSTANCE = "Cannot statically invoke method '%s' - It is an instance method. Call it on an instance of this class created via %s"
