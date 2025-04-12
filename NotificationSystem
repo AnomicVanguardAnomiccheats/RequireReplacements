@@ -5,7 +5,6 @@ local TS = game:GetService("TweenService")
 local template = game:GetService("ReplicatedStorage"):WaitForChild("UserInterface").Card
 
 function notify:AddToStream(player, text, scripttype, SetParent)
-	warn(scripttype)
 	pcall(function()
 		local clone = template:Clone()
 		if SetParent == "MainMenu" then
