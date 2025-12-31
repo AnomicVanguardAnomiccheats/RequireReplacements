@@ -16,3 +16,4 @@ function v1.SendNotification(_, p7, p8, p9)
     end)
     v_u_5:AddItem(v_u_11, 4)
 end
+return v1
