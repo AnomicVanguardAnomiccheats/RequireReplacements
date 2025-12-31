@@ -4,7 +4,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local v_u_3 = game:GetService("TweenService")
 local NotificationText = ReplicatedStorage.NotificationHandler.NotificationText
 local NotificationFrame = v10.PlayerGui:WaitForChild("AlwaysActiveHolder").NotificationFrame
-function v1.SendNotification(_, p7, p8, p9)
+function v1.SendNotification(p8, p9)
     local v_u_11 = NotificationText:Clone()
     v_u_11.TextColor3 = p9 or v_u_11.TextColor3
     v_u_11.Text = p8
