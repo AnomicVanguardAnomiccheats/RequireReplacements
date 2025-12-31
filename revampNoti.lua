@@ -1,3 +1,4 @@
+local v1 = {}
 local v10 = game.Players.LocalPlayer
 local v_u_5 = game:GetService("Debris")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
